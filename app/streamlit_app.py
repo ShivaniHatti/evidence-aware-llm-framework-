@@ -225,7 +225,7 @@ def highlight_spans(text: str, spans: list) -> str:
     )
 
 
-def render_analysis(result_dict: dict) -> None:
+def render_analysis(result_dict: dict, presentation_mode: bool = False) -> None:
     if not result_dict.get("input_valid"):
         st.error(result_dict.get("error_message") or "Invalid input.")
         return
@@ -439,6 +439,49 @@ else:
             """, unsafe_allow_html=True)
     
     st.markdown("---")
+    
+    # Presentation Demo Mode Panel
+    if presentation_mode:
+        st.markdown("### 🎓 Presentation Demo Mode")
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; border: 2px solid #5a67d8;'>
+            <h3 style='color: white; margin: 0 0 15px 0; font-size: 20px;'>🤖 LLM Configuration (Illustrative)</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style='background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 15px;'>
+            <div style='margin-bottom: 12px;'>
+                <strong style='color: #2d3748;'>📋 LLM Provider:</strong> 
+                <span style='color: #5a67d8; font-weight: 600;'>OpenAI</span>
+            </div>
+            <div style='margin-bottom: 12px;'>
+                <strong style='color: #2d3748;'>🧠 LLM Model:</strong> 
+                <code style='background: #e2e8f0; padding: 2px 8px; border-radius: 4px;'>GPT-4o-mini</code>
+            </div>
+            <div style='margin-bottom: 12px;'>
+                <strong style='color: #2d3748;'>🔗 LLM Integration:</strong> 
+                <span style='color: #48bb78; font-weight: 600;'>Implemented</span>
+            </div>
+            <div style='margin-bottom: 12px;'>
+                <strong style='color: #2d3748;'>🎯 LLM Role:</strong> 
+                <span style='color: #4a5568;'>Text analysis, classification suggestions, and explanation generation</span>
+            </div>
+            <div style='margin-bottom: 12px;'>
+                <strong style='color: #2d3748;'>📊 Model Type:</strong> 
+                <span style='color: #4a5568;'>Large Language Model</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style='background: #fff3cd; padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107; margin-top: 15px;'>
+            <strong>📌 Demonstration Status:</strong> <span style='font-weight: 600;'>Simulated LLM Usage</span><br>
+            <small style='color: #856404;'>This panel illustrates the configured LLM integration for academic presentation purposes. Actual API status is shown below.</small>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("---")
     
     # Uncertainty Details
     st.markdown("### ⚠️ Uncertainty Analysis")
@@ -818,10 +861,10 @@ def page_main(fw: EvidenceAwareFramework) -> None:
 
     if "last_result" in st.session_state:
         st.markdown("---")
-        render_analysis(st.session_state["last_result"])
+        render_analysis(st.session_state["last_result"], presentation_mode)
 
 
-def page_lab(fw: EvidenceAwareFramework) -> None:
+def page_lab(fw: EvidenceAwareFramework, presentation_mode: bool = False) -> None:
     st.markdown("### 🧪 Evidence Validation Laboratory")
     st.markdown(
         "<div style='background: linear-gradient(90deg, #f093fb, #f5576c); "
@@ -903,7 +946,7 @@ def page_lab(fw: EvidenceAwareFramework) -> None:
             with st.expander("Full validation report"):
                 st.json(out.get("full_report"))
         elif "analysis" in out:
-            render_analysis(out["analysis"])
+            render_analysis(out["analysis"], presentation_mode)
             with st.expander("Raw laboratory payload"):
                 st.json({k: v for k, v in out.items() if k != "analysis"})
         else:
@@ -930,6 +973,14 @@ def main() -> None:
     st.sidebar.markdown(f"👤 Logged in as: **{st.session_state.get('username', 'User')}**")
     st.sidebar.markdown("---")
     
+    # Presentation Demo Mode Toggle
+    presentation_mode = st.sidebar.toggle(
+        "🎓 Presentation Demo Mode",
+        value=False,
+        help="Enable illustrative LLM display for academic presentations (does not affect actual API calls)"
+    )
+    st.sidebar.markdown("---")
+    
     page = st.sidebar.radio(
         "📍 Section",
         ["🏠 Main Analysis", "🧪 Evidence Validation Laboratory"],
@@ -950,7 +1001,7 @@ def main() -> None:
     if page == "🏠 Main Analysis":
         page_main(fw)
     else:
-        page_lab(fw)
+        page_lab(fw, presentation_mode)
 
 
 if __name__ == "__main__":
