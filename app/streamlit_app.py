@@ -861,10 +861,10 @@ def page_main(fw: EvidenceAwareFramework) -> None:
 
     if "last_result" in st.session_state:
         st.markdown("---")
-        render_analysis(st.session_state["last_result"], presentation_mode)
+        render_analysis(st.session_state["last_result"], st.session_state.get("presentation_mode", False))
 
 
-def page_lab(fw: EvidenceAwareFramework, presentation_mode: bool = False) -> None:
+def page_lab(fw: EvidenceAwareFramework) -> None:
     st.markdown("### 🧪 Evidence Validation Laboratory")
     st.markdown(
         "<div style='background: linear-gradient(90deg, #f093fb, #f5576c); "
@@ -946,7 +946,7 @@ def page_lab(fw: EvidenceAwareFramework, presentation_mode: bool = False) -> Non
             with st.expander("Full validation report"):
                 st.json(out.get("full_report"))
         elif "analysis" in out:
-            render_analysis(out["analysis"], presentation_mode)
+            render_analysis(out["analysis"], st.session_state.get("presentation_mode", False))
             with st.expander("Raw laboratory payload"):
                 st.json({k: v for k, v in out.items() if k != "analysis"})
         else:
@@ -973,10 +973,12 @@ def main() -> None:
     st.sidebar.markdown(f"👤 Logged in as: **{st.session_state.get('username', 'User')}**")
     st.sidebar.markdown("---")
     
-    # Presentation Demo Mode Toggle
-    presentation_mode = st.sidebar.toggle(
+    # Presentation Demo Mode Toggle - store in session state for accessibility
+    if "presentation_mode" not in st.session_state:
+        st.session_state["presentation_mode"] = False
+    st.session_state["presentation_mode"] = st.sidebar.toggle(
         "🎓 Presentation Demo Mode",
-        value=False,
+        value=st.session_state["presentation_mode"],
         help="Enable illustrative LLM display for academic presentations (does not affect actual API calls)"
     )
     st.sidebar.markdown("---")
@@ -1001,7 +1003,7 @@ def main() -> None:
     if page == "🏠 Main Analysis":
         page_main(fw)
     else:
-        page_lab(fw, presentation_mode)
+        page_lab(fw)
 
 
 if __name__ == "__main__":
