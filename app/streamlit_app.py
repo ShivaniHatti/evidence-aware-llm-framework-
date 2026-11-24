@@ -248,42 +248,129 @@ def render_analysis(result_dict: dict) -> None:
     
     with col1:
         label_color = "#51cf66" if final_label == "legitimate" else "#ff6b6b" if final_label == "phishing" else "#ffd43b"
-        st.markdown(f"""
-        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid {label_color}; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
-            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>CLASSIFICATION</div>
-            <div style='color: {label_color}; font-size: 24px; font-weight: 700;'>{final_label or '—'}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        c1_col_label, c1_col_info = st.columns([5, 1])
+        with c1_col_label:
+            st.markdown(f"""
+            <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid {label_color}; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+                <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>CLASSIFICATION</div>
+                <div style='color: {label_color}; font-size: 24px; font-weight: 700;'>{final_label or '—'}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c1_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Classification Label**")
+                st.markdown("The predicted category for the input text.")
+                st.markdown("---")
+                st.markdown("**Source:** `src/classification/classifier.py`")
+                st.markdown("**Function:** `TextClassifier.predict()`")
+                st.markdown("---")
+                st.markdown("**Possible values:**")
+                st.markdown("- `phishing` - Suspicious/malicious message")
+                st.markdown("- `legitimate` - Safe/normal message")
+                st.markdown("- `uncertain` - Insufficient or conflicting evidence")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{final_label}`")
     
     with col2:
         conf = classification.get("confidence")
         conf_color = "#51cf66" if conf and conf > 0.7 else "#ffd43b" if conf and conf > 0.5 else "#ff6b6b"
-        st.markdown(f"""
-        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid #26c6da; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
-            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>CONFIDENCE</div>
-            <div style='color: {conf_color}; font-size: 24px; font-weight: 700;'>{f'{conf:.2f}' if conf is not None else 'n/a'}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        c2_col_label, c2_col_info = st.columns([5, 1])
+        with c2_col_label:
+            st.markdown(f"""
+            <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid #26c6da; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+                <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>CONFIDENCE</div>
+                <div style='color: {conf_color}; font-size: 24px; font-weight: 700;'>{f'{conf:.2f}' if conf is not None else 'n/a'}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c2_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Model Confidence Estimate**")
+                st.markdown("Raw probability from the classifier (NOT calibrated certainty).")
+                st.markdown("---")
+                st.markdown("**Source:** `src/classification/classifier.py`")
+                st.markdown("**Function:** `TextClassifier.predict()`")
+                st.markdown("---")
+                st.markdown("**Formula:**")
+                backend = classification.get("model_backend", "unknown")
+                if backend == "sklearn_local":
+                    st.code("confidence = max(predict_proba)")
+                    st.markdown("**Calculation:**")
+                    st.markdown(f"- Predicted label: `{classification.get('predicted_label')}`")
+                    st.markdown(f"- Raw probability: `{conf:.4f}`")
+                    st.markdown(f"- Displayed: `{conf:.2f}`")
+                    st.markdown("**Note:** This is a probability estimate, not evidence sufficiency.")
+                elif backend == "llm":
+                    st.code("confidence = llm_response.confidence")
+                    st.markdown("**Calculation:**")
+                    st.markdown(f"- LLM-provided confidence: `{conf}`")
+                    st.markdown("**Note:** LLM confidence is unverified until evidence validation.")
+                else:
+                    st.markdown(f"Backend: `{backend}`")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{f'{conf:.2f}' if conf is not None else 'n/a'}`")
     
     with col3:
         ev_count = len(result_dict.get("evidence_spans", []))
-        st.markdown(f"""
-        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid #ab47bc; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
-            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>EVIDENCE SPANS</div>
-            <div style='color: #ab47bc; font-size: 24px; font-weight: 700;'>{ev_count}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        c3_col_label, c3_col_info = st.columns([5, 1])
+        with c3_col_label:
+            st.markdown(f"""
+            <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid #ab47bc; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+                <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>EVIDENCE SPANS</div>
+                <div style='color: #ab47bc; font-size: 24px; font-weight: 700;'>{ev_count}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c3_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Total Evidence Spans**")
+                st.markdown("Number of lexical cue phrases identified in the input.")
+                st.markdown("---")
+                st.markdown("**Source:** `src/evidence/extractor.py`")
+                st.markdown("**Function:** `EvidenceExtractor.extract()`")
+                st.markdown("---")
+                st.markdown("**Formula:**")
+                st.code("count = len(evidence_bundle.spans)")
+                st.markdown("**Calculation:**")
+                st.markdown(f"- Total spans extracted: `{ev_count}`")
+                st.markdown("- Phishing cues: 32 regex patterns")
+                st.markdown("- Legitimate cues: 12 regex patterns")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{ev_count}`")
     
     with col4:
         is_uncertain = uncertainty.get("is_uncertain", False)
         status_color = "#ff6b6b" if is_uncertain else "#51cf66"
         status_text = "UNCERTAIN" if is_uncertain else "CERTAIN"
-        st.markdown(f"""
-        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid {status_color}; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
-            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>STATUS</div>
-            <div style='color: {status_color}; font-size: 24px; font-weight: 700;'>{status_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        c4_col_label, c4_col_info = st.columns([5, 1])
+        with c4_col_label:
+            st.markdown(f"""
+            <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid {status_color}; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+                <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>STATUS</div>
+                <div style='color: {status_color}; font-size: 24px; font-weight: 700;'>{status_text}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c4_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Evidence Sufficiency Status**")
+                st.markdown("Whether validated evidence is sufficient for a confident decision.")
+                st.markdown("---")
+                st.markdown("**Source:** `src/uncertainty/handler.py`")
+                st.markdown("**Function:** `UncertaintyHandler.assess()`")
+                st.markdown("---")
+                st.markdown("**Formula:**")
+                st.code("""
+if n_supporting >= MIN_SUPPORTING and n_contradictory == 0:
+    status = "CERTAIN"
+else:
+    status = "UNCERTAIN"
+                """)
+                st.markdown("**Calculation:**")
+                st.markdown(f"- Supporting evidence: `{len(validation.get('valid_supporting', []))}`")
+                st.markdown(f"- Contradictory evidence: `{len(validation.get('valid_contradictory', []))}`")
+                st.markdown(f"- Rejected spans: `{len(validation.get('rejected_spans', []))}`")
+                st.markdown(f"- Minimum required: `1`")
+                st.markdown(f"- Uncertainty status: `{uncertainty.get('status', '—')}`")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{status_text}`")
     
     st.markdown("---")
     
@@ -296,6 +383,62 @@ def render_analysis(result_dict: dict) -> None:
         <strong>🤖 LLM Used:</strong> <span style='color: {"#51cf66" if llm_used else "#adb5bd"}'>{str(llm_used)}</span>
     </div>
     """, unsafe_allow_html=True)
+    
+    # LLM & Model Information Section
+    st.markdown("### 🤖 LLM & Model Information")
+    
+    llm_error = intermediate.get("llm_error")
+    llm_configured = llm.get("used_llm", False)
+    
+    st.markdown(f"""
+    <div style='background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;'>
+        <div style='margin-bottom: 15px;'>
+            <strong style='color: #2d3748;'>📋 Configured LLM:</strong> 
+            <code style='background: #e2e8f0; padding: 2px 8px; border-radius: 4px;'>GPT-4o-mini</code>
+        </div>
+        <div style='margin-bottom: 15px;'>
+            <strong style='color: #2d3748;'>✅ LLM Actually Used:</strong> 
+            <span style='color: {"#51cf66" if llm_used else "#ff6b6b"}; font-weight: 600;'>{'Yes' if llm_used else 'No'}</span>
+        </div>
+        <div style='margin-bottom: 15px;'>
+            <strong style='color: #2d3748;'>🔧 Active Classification Model:</strong> 
+            <code style='background: #e2e8f0; padding: 2px 8px; border-radius: 4px;'>{backend}</code>
+        </div>
+        <div style='margin-bottom: 15px;'>
+            <strong style='color: #2d3748;'>💬 Explanation Backend:</strong> 
+            <code style='background: #e2e8f0; padding: 2px 8px; border-radius: 4px;'>{explanation.get('generation_backend', 'local_template')}</code>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Why LLM was/was not used
+    if llm_used:
+        st.markdown("""
+        <div style='background: #d4edda; padding: 15px; border-radius: 10px; border-left: 4px solid #28a745;'>
+            <strong>✅ LLM Active:</strong> GPT-4o-mini was successfully called and provided classification and explanation.
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style='background: #fff3cd; padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107;'>
+            <strong>⚠️ LLM Not Active:</strong> GPT-4o-mini configured but not active. Local fallback: TF-IDF + Logistic Regression.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if llm_error:
+            st.markdown(f"""
+            <div style='background: #f8d7da; padding: 15px; border-radius: 10px; border-left: 4px solid #dc3545; margin-top: 10px;'>
+                <strong>❌ Error:</strong> {llm_error}
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style='background: #e2e8f0; padding: 15px; border-radius: 10px; margin-top: 10px;'>
+                <strong>📝 Reason:</strong> OPENAI_API_KEY environment variable not set or LLM_MODE set to 'local'.
+            </div>
+            """, unsafe_allow_html=True)
+    
+    st.markdown("---")
     
     # Uncertainty Details
     st.markdown("### ⚠️ Uncertainty Analysis")
@@ -358,24 +501,136 @@ def render_analysis(result_dict: dict) -> None:
         contra = validation.get("valid_contradictory") or []
         rejected = validation.get("rejected_spans") or []
         
-        st.markdown(f"""
-        <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
-            <div style='color: #51cf66; font-size: 28px; font-weight: 700;'>{len(support)}</div>
-            <div style='color: #718096; font-size: 12px;'>Supporting</div>
-        </div>
-        <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
-            <div style='color: #ffd43b; font-size: 28px; font-weight: 700;'>{len(contra)}</div>
-            <div style='color: #718096; font-size: 12px;'>Contradictory</div>
-        </div>
-        <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
-            <div style='color: #ff6b6b; font-size: 28px; font-weight: 700;'>{len(rejected)}</div>
-            <div style='color: #718096; font-size: 12px;'>Rejected</div>
-        </div>
-        <div style='background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
-            <div style='color: #26c6da; font-size: 28px; font-weight: 700;'>{validation.get('existence_pass_rate', 0):.0%}</div>
-            <div style='color: #718096; font-size: 12px;'>Pass Rate</div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Supporting Evidence Card
+        s_col_label, s_col_info = st.columns([5, 1])
+        with s_col_label:
+            st.markdown(f"""
+            <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+                <div style='color: #51cf66; font-size: 28px; font-weight: 700;'>{len(support)}</div>
+                <div style='color: #718096; font-size: 12px;'>Supporting</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with s_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Supporting Evidence Count**")
+                st.markdown("Number of evidence spans that support the predicted label.")
+                st.markdown("---")
+                st.markdown("**Source:** `src/validation/validator.py`")
+                st.markdown("**Function:** `EvidenceValidator.validate_spans()`")
+                st.markdown("---")
+                st.markdown("**Formula:**")
+                st.code("""
+valid_supporting = [
+    r for r in results 
+    if r.support == "supports" 
+    and r.relevance == "relevant"
+    and r.exists_in_input
+]
+                """)
+                st.markdown("**Calculation:**")
+                st.markdown(f"- Total spans: `{len(ev)}`")
+                st.markdown(f"- Valid supporting: `{len(support)}`")
+                st.markdown(f"- Predicted label: `{final_label}`")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{len(support)}`")
+        
+        # Contradictory Evidence Card
+        c_col_label, c_col_info = st.columns([5, 1])
+        with c_col_label:
+            st.markdown(f"""
+            <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+                <div style='color: #ffd43b; font-size: 28px; font-weight: 700;'>{len(contra)}</div>
+                <div style='color: #718096; font-size: 12px;'>Contradictory</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Contradictory Evidence Count**")
+                st.markdown("Number of evidence spans that contradict the predicted label.")
+                st.markdown("---")
+                st.markdown("**Source:** `src/validation/validator.py`")
+                st.markdown("**Function:** `EvidenceValidator.validate_spans()`")
+                st.markdown("---")
+                st.markdown("**Formula:**")
+                st.code("""
+valid_contradictory = [
+    r for r in results 
+    if r.support == "contradicts"
+    and r.exists_in_input
+]
+                """)
+                st.markdown("**Calculation:**")
+                st.markdown(f"- Total spans: `{len(ev)}`")
+                st.markdown(f"- Valid contradictory: `{len(contra)}`")
+                st.markdown(f"- Predicted label: `{final_label}`")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{len(contra)}`")
+        
+        # Rejected Evidence Card
+        r_col_label, r_col_info = st.columns([5, 1])
+        with r_col_label:
+            st.markdown(f"""
+            <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+                <div style='color: #ff6b6b; font-size: 28px; font-weight: 700;'>{len(rejected)}</div>
+                <div style='color: #718096; font-size: 12px;'>Rejected</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with r_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Rejected Evidence Count**")
+                st.markdown("Number of evidence spans that failed existence/localization checks.")
+                st.markdown("---")
+                st.markdown("**Source:** `src/validation/validator.py`")
+                st.markdown("**Function:** `EvidenceValidator.validate_spans()`")
+                st.markdown("---")
+                st.markdown("**Formula:**")
+                st.code("""
+rejected = [
+    r for r in results 
+    if not r.exists_in_input 
+    or r.rejection_reason
+]
+                """)
+                st.markdown("**Calculation:**")
+                st.markdown(f"- Total spans: `{len(ev)}`")
+                st.markdown(f"- Rejected: `{len(rejected)}`")
+                st.markdown("- Rejection reasons:")
+                for r in rejected[:3]:  # Show first 3
+                    st.markdown(f"  - {r.get('rejection_reason', 'Unknown')}")
+                if len(rejected) > 3:
+                    st.markdown(f"  - ... and {len(rejected) - 3} more")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{len(rejected)}`")
+        
+        # Pass Rate Card
+        p_col_label, p_col_info = st.columns([5, 1])
+        with p_col_label:
+            pass_rate = validation.get('existence_pass_rate', 0)
+            st.markdown(f"""
+            <div style='background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+                <div style='color: #26c6da; font-size: 28px; font-weight: 700;'>{pass_rate:.0%}</div>
+                <div style='color: #718096; font-size: 12px;'>Pass Rate</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with p_col_info:
+            with st.popover("ℹ️"):
+                st.markdown("**Evidence Existence Pass Rate**")
+                st.markdown("Percentage of evidence spans that actually exist in the input.")
+                st.markdown("---")
+                st.markdown("**Source:** `src/validation/validator.py`")
+                st.markdown("**Function:** `EvidenceValidator.validate_spans()`")
+                st.markdown("---")
+                st.markdown("**Formula:**")
+                st.code("pass_rate = exists_count / total_count")
+                st.markdown("**Calculation:**")
+                total = len(ev) if ev else 1
+                exists_ok = sum(1 for r in validation.get("span_results", []) if r.get("exists_in_input"))
+                st.markdown(f"- Total spans: `{total}`")
+                st.markdown(f"- Existence OK: `{exists_ok}`")
+                st.markdown(f"- Pass rate: `{exists_ok}/{total} = {pass_rate:.4f}`")
+                st.markdown(f"- Displayed: `{pass_rate:.0%}`")
+                st.markdown("---")
+                st.markdown(f"**Current value:** `{pass_rate:.0%}`")
     
     st.markdown("---")
     
@@ -383,6 +638,23 @@ def render_analysis(result_dict: dict) -> None:
     st.markdown("#### 📋 Evidence Identification")
     ev = result_dict.get("evidence_spans") or []
     if ev:
+        # Add character position details popover
+        with st.popover("📍 Character Position Details"):
+            st.markdown("**Exact Evidence Phrases and Character Offsets**")
+            st.markdown("---")
+            st.markdown("**Source:** `src/evidence/extractor.py`")
+            st.markdown("**Function:** `EvidenceExtractor.extract()`")
+            st.markdown("---")
+            for i, e in enumerate(ev, 1):
+                st.markdown(f"**Evidence {i}:**")
+                st.markdown(f"- Text: `{e['text']}`")
+                st.markdown(f"- Start position: `{e['start']}`")
+                st.markdown(f"- End position: `{e['end']}`")
+                st.markdown(f"- Length: `{e['end'] - e['start']} characters`")
+                st.markdown(f"- Cue type: `{e['cue_type']}`")
+                st.markdown(f"- Source: `{e['source']}`")
+                st.markdown("---")
+        
         st.dataframe(
             [
                 {
@@ -399,6 +671,26 @@ def render_analysis(result_dict: dict) -> None:
         )
     else:
         st.info("No lexical evidence cues identified.")
+    
+    # TF-IDF Feature Details (only for sklearn_local backend)
+    if backend == "sklearn_local" and classification.get("class_probabilities"):
+        st.markdown("### 🔢 TF-IDF Feature Details")
+        with st.expander("View TF-IDF Vectorization Details"):
+            st.markdown("**Source:** `src/classification/classifier.py`")
+            st.markdown("**Function:** `TextClassifier.predict()`")
+            st.markdown("---")
+            st.markdown("**TF-IDF Configuration:**")
+            st.markdown("- N-gram range: (1, 2)")
+            st.markdown("- Max features: 5000")
+            st.markdown("- Lowercase: True")
+            st.markdown("- Min document frequency: 1")
+            st.markdown("---")
+            st.markdown("**Class Probabilities:**")
+            probs = classification.get("class_probabilities", {})
+            for label, prob in probs.items():
+                st.markdown(f"- `{label}`: `{prob:.4f}`")
+            st.markdown("---")
+            st.markdown("**Note:** Individual feature names and values are not exposed by the sklearn pipeline for this demonstration. The model uses the full TF-IDF vector to compute probabilities.")
     
     # Validation Status
     st.markdown("### ✅ Validation Status")
