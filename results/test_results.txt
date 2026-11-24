@@ -1,0 +1,23 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.2.0, pluggy-1.7.0
+rootdir: C:\Users\Shivani R Hatti\OneDrive\Desktop\NLP
+configfile: pytest.ini
+plugins: anyio-4.14.2, langsmith-0.10.18, cov-7.1.0
+collected 23 items
+
+tests\test_evidence.py ....                                              [ 17%]
+tests\test_llm.py ...                                                    [ 30%]
+tests\test_preprocessing.py ....                                         [ 47%]
+tests\test_uncertainty_and_pipeline.py ......                            [ 73%]
+tests\test_validation.py ......                                          [100%]
+
+============================== warnings summary ===============================
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\pytest_plugin.py:14
+  C:\Users\Shivani R Hatti\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 23 passed, 1 warning in 0.08s ========================

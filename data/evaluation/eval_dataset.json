@@ -1,0 +1,128 @@
+{
+  "description": "Small evaluation set for reproducible academic experiments. Manually authored for this project.",
+  "source": "Project authors — synthetic demonstration messages (not scraped).",
+  "license": "Original academic content. Free to use for evaluation of this prototype.",
+  "distinction": "These samples are demonstration/evaluation data, not real-world production validation data.",
+  "samples": [
+    {
+      "id": "eval_001",
+      "label": "phishing",
+      "text": "Urgent: your password expires today. Click here to reset your password now or access will be locked.",
+      "evidence_spans": ["Urgent", "Click here", "reset your password"]
+    },
+    {
+      "id": "eval_002",
+      "label": "phishing",
+      "text": "Dear valued customer, we noticed unusual activity. Verify your account immediately via http://bank-secure-check.example/login",
+      "evidence_spans": ["Dear valued customer", "unusual activity", "Verify your account", "http://bank-secure-check.example/login"]
+    },
+    {
+      "id": "eval_003",
+      "label": "phishing",
+      "text": "You have won a prize in our lottery. Provide your bank details and SSN to claim the inheritance.",
+      "evidence_spans": ["won a prize", "lottery", "bank details"]
+    },
+    {
+      "id": "eval_004",
+      "label": "phishing",
+      "text": "Limited time offer: act now and send gift card codes to unlock your suspended account.",
+      "evidence_spans": ["Limited time", "act now", "gift card", "suspended"]
+    },
+    {
+      "id": "eval_005",
+      "label": "phishing",
+      "text": "Security alert from IT: confirm your identity and login here immediately to avoid suspension.",
+      "evidence_spans": ["Security alert", "confirm your identity", "login here", "immediately"]
+    },
+    {
+      "id": "eval_006",
+      "label": "legitimate",
+      "text": "Thank you for your purchase. Your receipt is attached. No action is required.",
+      "evidence_spans": ["Thank you for your purchase", "Your receipt", "No action is required"]
+    },
+    {
+      "id": "eval_007",
+      "label": "legitimate",
+      "text": "Meeting invitation: project sync tomorrow at 10am. Calendar invite attached. Unsubscribe from reminders in settings.",
+      "evidence_spans": ["Meeting invitation", "Calendar invite", "Unsubscribe"]
+    },
+    {
+      "id": "eval_008",
+      "label": "legitimate",
+      "text": "Shipping confirmation for order 4412. For your records only. Customer support hours are 9-5.",
+      "evidence_spans": ["Shipping confirmation", "For your records", "Customer support hours"]
+    },
+    {
+      "id": "eval_009",
+      "label": "legitimate",
+      "text": "Your monthly newsletter includes our privacy policy updates. Thank you for your subscription.",
+      "evidence_spans": ["newsletter", "privacy policy", "Thank you for your subscription"]
+    },
+    {
+      "id": "eval_010",
+      "label": "legitimate",
+      "text": "Order confirmation #77B. Thank you for your order. No action required regarding payment.",
+      "evidence_spans": ["Order confirmation", "Thank you for your order"]
+    },
+    {
+      "id": "eval_011",
+      "label": "uncertain",
+      "text": "Okay see you then.",
+      "evidence_spans": []
+    },
+    {
+      "id": "eval_012",
+      "label": "uncertain",
+      "text": "Please review the attached document when you can.",
+      "evidence_spans": []
+    },
+    {
+      "id": "eval_013",
+      "label": "uncertain",
+      "text": "Your order confirmation is ready for your records, but please verify your account urgently due to unusual activity or it will be suspended.",
+      "evidence_spans": ["order confirmation", "for your records", "verify your account", "unusual activity"]
+    },
+    {
+      "id": "eval_014",
+      "label": "phishing",
+      "text": "We will suspend your account unless you click the link and provide your OTP and credit card number today.",
+      "evidence_spans": ["suspend your account", "click the link", "credit card"]
+    },
+    {
+      "id": "eval_015",
+      "label": "legitimate",
+      "text": "Thank you for your subscription renewal. Your receipt and privacy policy link are below. Unsubscribe anytime.",
+      "evidence_spans": ["Thank you for your subscription", "Your receipt", "privacy policy", "Unsubscribe"]
+    },
+    {
+      "id": "eval_016",
+      "label": "phishing",
+      "text": "Immediate action required: wire transfer authorization needed. Login now to approve cryptocurrency payment.",
+      "evidence_spans": ["Immediate", "wire transfer", "Login now", "cryptocurrency"]
+    },
+    {
+      "id": "eval_017",
+      "label": "uncertain",
+      "text": "Can we postpone the call?",
+      "evidence_spans": []
+    },
+    {
+      "id": "eval_018",
+      "label": "legitimate",
+      "text": "Shipping update: package out for delivery. For your records. No action is required.",
+      "evidence_spans": ["Shipping update", "For your records", "No action is required"]
+    },
+    {
+      "id": "eval_019",
+      "label": "phishing",
+      "text": "Dear user, password update required. Unusual activity found. Click below to confirm your identity.",
+      "evidence_spans": ["Dear user", "password update", "Unusual activity", "confirm your identity"]
+    },
+    {
+      "id": "eval_020",
+      "label": "uncertain",
+      "text": "Notes from yesterday look fine overall.",
+      "evidence_spans": []
+    }
+  ]
+}

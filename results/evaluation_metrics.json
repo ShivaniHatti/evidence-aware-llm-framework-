@@ -1,0 +1,446 @@
+{
+  "timestamp_utc": "2026-11-23T14:11:50.157319+00:00",
+  "n_samples": 20,
+  "label_distribution": {
+    "phishing": 8,
+    "legitimate": 7,
+    "uncertain": 5
+  },
+  "baseline": {
+    "description": "Ordinary TF-IDF classification without evidence-validation override.",
+    "metrics": {
+      "accuracy": 0.75,
+      "precision_macro": 0.5016835016835017,
+      "recall_macro": 0.6666666666666666,
+      "f1_macro": 0.5723684210526315,
+      "confusion_matrix": {
+        "labels": [
+          "phishing",
+          "legitimate",
+          "uncertain"
+        ],
+        "matrix": [
+          [
+            8,
+            0,
+            0
+          ],
+          [
+            0,
+            7,
+            0
+          ],
+          [
+            3,
+            2,
+            0
+          ]
+        ]
+      },
+      "classification_report": {
+        "phishing": {
+          "precision": 0.7272727272727273,
+          "recall": 1.0,
+          "f1-score": 0.8421052631578947,
+          "support": 8.0
+        },
+        "legitimate": {
+          "precision": 0.7777777777777778,
+          "recall": 1.0,
+          "f1-score": 0.875,
+          "support": 7.0
+        },
+        "uncertain": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 5.0
+        },
+        "accuracy": 0.75,
+        "macro avg": {
+          "precision": 0.5016835016835017,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.5723684210526315,
+          "support": 20.0
+        },
+        "weighted avg": {
+          "precision": 0.5631313131313131,
+          "recall": 0.75,
+          "f1-score": 0.6430921052631579,
+          "support": 20.0
+        }
+      }
+    }
+  },
+  "proposed": {
+    "description": "Evidence-aware framework with validation and uncertainty handling.",
+    "metrics": {
+      "accuracy": 1.0,
+      "precision_macro": 1.0,
+      "recall_macro": 1.0,
+      "f1_macro": 1.0,
+      "confusion_matrix": {
+        "labels": [
+          "phishing",
+          "legitimate",
+          "uncertain"
+        ],
+        "matrix": [
+          [
+            8,
+            0,
+            0
+          ],
+          [
+            0,
+            7,
+            0
+          ],
+          [
+            0,
+            0,
+            5
+          ]
+        ]
+      },
+      "classification_report": {
+        "phishing": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 8.0
+        },
+        "legitimate": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 7.0
+        },
+        "uncertain": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 5.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 20.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 20.0
+        }
+      }
+    }
+  },
+  "evidence_metrics": {
+    "span_precision_avg": 0.9008333333333333,
+    "span_recall_avg": 0.9666666666666666,
+    "span_f1_avg": 0.9284126984126985,
+    "per_sample": [
+      {
+        "id": "eval_001",
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1": 0.6666666666666666
+      },
+      {
+        "id": "eval_002",
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.888888888888889
+      },
+      {
+        "id": "eval_003",
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571428571428571
+      },
+      {
+        "id": "eval_004",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_005",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_006",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_007",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_008",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_009",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_010",
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8
+      },
+      {
+        "id": "eval_011",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_012",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_013",
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8
+      },
+      {
+        "id": "eval_014",
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1": 0.6666666666666666
+      },
+      {
+        "id": "eval_015",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_016",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_017",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_018",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "id": "eval_019",
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.888888888888889
+      },
+      {
+        "id": "eval_020",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    ],
+    "existence_validation_accuracy": 1.0,
+    "existence_total": 54,
+    "fabricated_evidence_detection_rate": 1.0,
+    "fabricated_cases": 8
+  },
+  "uncertainty_metrics": {
+    "insufficient_detection_rate": 1.0,
+    "insufficient_cases": 4,
+    "contradictory_handling_rate": 1.0,
+    "contradictory_cases": 1
+  },
+  "per_sample": [
+    {
+      "id": "eval_001",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 0.6666666666666666
+    },
+    {
+      "id": "eval_002",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 0.888888888888889
+    },
+    {
+      "id": "eval_003",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 0.8571428571428571
+    },
+    {
+      "id": "eval_004",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_005",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_006",
+      "gold": "legitimate",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "legitimate",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_007",
+      "gold": "legitimate",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "legitimate",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_008",
+      "gold": "legitimate",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "legitimate",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_009",
+      "gold": "legitimate",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "legitimate",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_010",
+      "gold": "legitimate",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "legitimate",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 0.8
+    },
+    {
+      "id": "eval_011",
+      "gold": "uncertain",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "uncertain",
+      "uncertainty_status": "insufficient_evidence",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_012",
+      "gold": "uncertain",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "uncertain",
+      "uncertainty_status": "insufficient_evidence",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_013",
+      "gold": "uncertain",
+      "baseline_pred": "phishing",
+      "proposed_pred": "uncertain",
+      "uncertainty_status": "conflicting_evidence",
+      "evidence_f1": 0.8
+    },
+    {
+      "id": "eval_014",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 0.6666666666666666
+    },
+    {
+      "id": "eval_015",
+      "gold": "legitimate",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "legitimate",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_016",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_017",
+      "gold": "uncertain",
+      "baseline_pred": "phishing",
+      "proposed_pred": "uncertain",
+      "uncertainty_status": "insufficient_evidence",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_018",
+      "gold": "legitimate",
+      "baseline_pred": "legitimate",
+      "proposed_pred": "legitimate",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 1.0
+    },
+    {
+      "id": "eval_019",
+      "gold": "phishing",
+      "baseline_pred": "phishing",
+      "proposed_pred": "phishing",
+      "uncertainty_status": "sufficient",
+      "evidence_f1": 0.888888888888889
+    },
+    {
+      "id": "eval_020",
+      "gold": "uncertain",
+      "baseline_pred": "phishing",
+      "proposed_pred": "uncertain",
+      "uncertainty_status": "insufficient_evidence",
+      "evidence_f1": 1.0
+    }
+  ],
+  "limitations": [
+    "Small synthetic evaluation set; scores are for prototype demonstration only.",
+    "Not a production phishing detector; domain cues are lexical heuristics.",
+    "Model confidence is not temperature-calibrated.",
+    "Relevance/support use independent rule-based checks, not causal reasoning."
+  ]
+}

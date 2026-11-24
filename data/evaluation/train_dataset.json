@@ -1,0 +1,29 @@
+{
+  "description": "Synthetic training messages for the local TF-IDF classifier. Demonstration domain only.",
+  "samples": [
+    {"text": "Dear customer, verify your account immediately or it will be suspended due to unusual activity.", "label": "phishing"},
+    {"text": "Urgent security alert: click here to reset your password now.", "label": "phishing"},
+    {"text": "You won a lottery prize. Provide your bank details and SSN to claim inheritance.", "label": "phishing"},
+    {"text": "Act now: limited time to unlock your suspended account with gift card codes.", "label": "phishing"},
+    {"text": "Confirm your identity and login here immediately to avoid account suspension.", "label": "phishing"},
+    {"text": "Wire transfer required. Send bitcoin to the crypto wallet linked below.", "label": "phishing"},
+    {"text": "Dear valued customer, unusual activity detected. Click the link to secure your account.", "label": "phishing"},
+    {"text": "Your password expires today. Login now and provide your OTP and credit card.", "label": "phishing"},
+    {"text": "Immediate action: account will be closed unless you verify your account below.", "label": "phishing"},
+    {"text": "Security alert: confirm your identity via http://secure-update.example/login", "label": "phishing"},
+    {"text": "Please update payment by clicking here or access will be locked permanently.", "label": "phishing"},
+    {"text": "We noticed unusual activity. Suspend risk high. Act now and login here.", "label": "phishing"},
+    {"text": "Thank you for your purchase. Order confirmation attached. No action is required.", "label": "legitimate"},
+    {"text": "Shipping confirmation for your order. For your records. Unsubscribe anytime.", "label": "legitimate"},
+    {"text": "Meeting invitation for Tuesday. Calendar invite attached.", "label": "legitimate"},
+    {"text": "Your receipt is ready. Thank you for your subscription. Privacy policy enclosed.", "label": "legitimate"},
+    {"text": "Newsletter update with customer support hours. Unsubscribe in settings.", "label": "legitimate"},
+    {"text": "Thank you for your order. Shipping update coming soon. No action required.", "label": "legitimate"},
+    {"text": "Order confirmation #100. For your records only. Thank you for your purchase.", "label": "legitimate"},
+    {"text": "Calendar invite: design review. Meeting reminder follows.", "label": "legitimate"},
+    {"text": "Your monthly newsletter and privacy policy updates. Thank you for your subscription.", "label": "legitimate"},
+    {"text": "Shipping notification: delivered today. Customer support hours 9-5.", "label": "legitimate"},
+    {"text": "Thank you for your purchase renewal. Your receipt is attached.", "label": "legitimate"},
+    {"text": "Meeting reminder tomorrow. No action is required if you already accepted.", "label": "legitimate"}
+  ]
+}

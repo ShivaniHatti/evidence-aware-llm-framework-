@@ -1,0 +1,64 @@
+{
+  "description": "Manually curated demonstration samples for examiner tests. NOT production phishing data.",
+  "license": "Original content created for this academic project (CC0 / public domain intent).",
+  "disclaimer": "Demonstration only. This is not a production-grade phishing detection system.",
+  "samples": [
+    {
+      "id": "demo_phish_01",
+      "label": "phishing",
+      "purpose": "valid_evidence",
+      "text": "Dear customer, we detected unusual activity on your account. Please verify your account immediately by clicking the link below or your account will be suspended. Act now: http://secure-login-update.example.com/login",
+      "annotated_evidence": [
+        {"text": "unusual activity", "cue_type": "phishing"},
+        {"text": "verify your account", "cue_type": "phishing"},
+        {"text": "account will be suspended", "cue_type": "phishing"},
+        {"text": "Act now", "cue_type": "phishing"}
+      ]
+    },
+    {
+      "id": "demo_legit_01",
+      "label": "legitimate",
+      "purpose": "valid_evidence",
+      "text": "Thank you for your purchase. Your order confirmation number is A12345. Shipping confirmation will follow. No action is required. You may unsubscribe from this newsletter at any time.",
+      "annotated_evidence": [
+        {"text": "Thank you for your purchase", "cue_type": "legitimate"},
+        {"text": "order confirmation", "cue_type": "legitimate"},
+        {"text": "Shipping confirmation", "cue_type": "legitimate"},
+        {"text": "No action is required", "cue_type": "legitimate"},
+        {"text": "unsubscribe", "cue_type": "legitimate"}
+      ]
+    },
+    {
+      "id": "demo_insufficient_01",
+      "label": "uncertain",
+      "purpose": "insufficient_evidence",
+      "text": "Hi, are you free later today?",
+      "annotated_evidence": []
+    },
+    {
+      "id": "demo_conflict_01",
+      "label": "uncertain",
+      "purpose": "contradictory_evidence",
+      "text": "Your order confirmation for #9981 is attached for your records. However, please verify your account urgently and click the link or your account will be suspended due to unusual activity.",
+      "annotated_evidence": [
+        {"text": "order confirmation", "cue_type": "legitimate"},
+        {"text": "for your records", "cue_type": "legitimate"},
+        {"text": "verify your account", "cue_type": "phishing"},
+        {"text": "unusual activity", "cue_type": "phishing"},
+        {"text": "account will be suspended", "cue_type": "phishing"}
+      ]
+    },
+    {
+      "id": "demo_fabricated_base",
+      "label": "phishing",
+      "purpose": "fabricated_evidence_base",
+      "text": "Security alert: unusual activity detected. Please confirm your identity immediately.",
+      "fabricated_phrase": "wire transfer of $50,000 to an overseas bitcoin wallet",
+      "annotated_evidence": [
+        {"text": "Security alert", "cue_type": "phishing"},
+        {"text": "unusual activity", "cue_type": "phishing"},
+        {"text": "confirm your identity", "cue_type": "phishing"}
+      ]
+    }
+  ]
+}
