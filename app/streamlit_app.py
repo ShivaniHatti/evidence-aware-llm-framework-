@@ -172,69 +172,159 @@ def render_analysis(result_dict: dict) -> None:
     intermediate = result_dict.get("intermediate") or {}
 
     final_label = uncertainty.get("final_label") or classification.get("predicted_label")
-    st.subheader("Classification Result")
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Final category", final_label or "—")
-    conf = classification.get("confidence")
-    c2.metric(
-        "Model confidence (uncalibrated)",
-        f"{conf:.2f}" if conf is not None else "n/a",
-    )
-    c3.metric("Evidence sufficiency", uncertainty.get("evidence_sufficiency", "—"))
-
+    
+    # Dashboard Header with Summary Cards
+    st.markdown("### 📊 Analysis Dashboard")
+    st.markdown("---")
+    
+    # Summary Cards Row
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        label_color = "#51cf66" if final_label == "legitimate" else "#ff6b6b" if final_label == "phishing" else "#ffd43b"
+        st.markdown(f"""
+        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid {label_color}; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>CLASSIFICATION</div>
+            <div style='color: {label_color}; font-size: 24px; font-weight: 700;'>{final_label or '—'}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        conf = classification.get("confidence")
+        conf_color = "#51cf66" if conf and conf > 0.7 else "#ffd43b" if conf and conf > 0.5 else "#ff6b6b"
+        st.markdown(f"""
+        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid #26c6da; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>CONFIDENCE</div>
+            <div style='color: {conf_color}; font-size: 24px; font-weight: 700;'>{f'{conf:.2f}' if conf is not None else 'n/a'}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        ev_count = len(result_dict.get("evidence_spans", []))
+        st.markdown(f"""
+        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid #ab47bc; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>EVIDENCE SPANS</div>
+            <div style='color: #ab47bc; font-size: 24px; font-weight: 700;'>{ev_count}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        is_uncertain = uncertainty.get("is_uncertain", False)
+        status_color = "#ff6b6b" if is_uncertain else "#51cf66"
+        status_text = "UNCERTAIN" if is_uncertain else "CERTAIN"
+        st.markdown(f"""
+        <div style='background: white; padding: 20px; border-radius: 15px; border-left: 5px solid {status_color}; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+            <div style='color: #718096; font-size: 12px; font-weight: 600; margin-bottom: 5px;'>STATUS</div>
+            <div style='color: {status_color}; font-size: 24px; font-weight: 700;'>{status_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Backend Info
     backend = classification.get("model_backend", "unknown")
     llm_used = intermediate.get("llm_used", False)
-    st.caption(
-        f"Classification backend: `{backend}`. "
-        f"LLM used: **{llm_used}**. "
-        + (
-            f"LLM note: {llm.get('error')}"
-            if llm and llm.get("error")
-            else "Outputs clearly distinguish local vs LLM generation."
-        )
-    )
-
-    st.subheader("Uncertainty Indicator")
+    st.markdown(f"""
+    <div style='background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;'>
+        <strong>🔧 Backend:</strong> <code>{backend}</code> · 
+        <strong>🤖 LLM Used:</strong> <span style='color: {"#51cf66" if llm_used else "#adb5bd"}'>{str(llm_used)}</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Uncertainty Details
+    st.markdown("### ⚠️ Uncertainty Analysis")
     status = uncertainty.get("status", "—")
     if uncertainty.get("is_uncertain"):
-        st.warning(f"Uncertain — status: `{status}`")
+        st.markdown(f"""
+        <div style='background: #fff3cd; padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107;'>
+            <strong>⚠️ Uncertain Status:</strong> <code>{status}</code>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        st.success(f"Evidence sufficient — status: `{status}`")
-    for reason in uncertainty.get("reasons") or []:
-        st.write(f"- {reason}")
+        st.markdown(f"""
+        <div style='background: #d4edda; padding: 15px; border-radius: 10px; border-left: 4px solid #28a745;'>
+            <strong>✅ Evidence Sufficient:</strong> <code>{status}</code>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    if uncertainty.get("reasons"):
+        st.markdown("**Reasons:**")
+        for reason in uncertainty.get("reasons"):
+            st.markdown(f"• {reason}")
 
-    st.subheader("Original Input with Evidence Highlights")
-    span_results = validation.get("span_results") or []
-    highlight_payload = []
-    for r in span_results:
-        span = r.get("span") or {}
-        highlight_payload.append(
-            {
-                "start": span.get("start"),
-                "end": span.get("end"),
-                "actual_start": r.get("actual_start"),
-                "actual_end": r.get("actual_end"),
-                "support": r.get("support"),
-                "exists_in_input": r.get("exists_in_input"),
-            }
+    # Evidence Highlights Section
+    st.markdown("### 🔍 Evidence Analysis")
+    col_left, col_right = st.columns([2, 1])
+    
+    with col_left:
+        st.markdown("#### 📝 Original Input with Highlights")
+        span_results = validation.get("span_results") or []
+        highlight_payload = []
+        for r in span_results:
+            span = r.get("span") or {}
+            highlight_payload.append(
+                {
+                    "start": span.get("start"),
+                    "end": span.get("end"),
+                    "actual_start": r.get("actual_start"),
+                    "actual_end": r.get("actual_end"),
+                    "support": r.get("support"),
+                    "exists_in_input": r.get("exists_in_input"),
+                }
+            )
+        st.markdown(
+            highlight_spans(result_dict.get("normalized_text", ""), highlight_payload),
+            unsafe_allow_html=True,
         )
-    st.markdown(
-        highlight_spans(result_dict.get("normalized_text", ""), highlight_payload),
-        unsafe_allow_html=True,
-    )
-    st.caption("Green = supports · Yellow = contradicts · Grey = neutral · Red = rejected/missing")
-
-    st.subheader("Evidence Identification")
+        st.markdown("""
+        <div style='background: #f8fafc; padding: 10px; border-radius: 8px; font-size: 12px; color: #718096;'>
+            <span style='color: #51cf66;'>●</span> Supports · 
+            <span style='color: #ffd43b;'>●</span> Contradicts · 
+            <span style='color: #adb5bd;'>●</span> Neutral · 
+            <span style='color: #ff6b6b;'>●</span> Rejected
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_right:
+        st.markdown("#### 📊 Evidence Stats")
+        ev = result_dict.get("evidence_spans") or []
+        support = validation.get("valid_supporting") or []
+        contra = validation.get("valid_contradictory") or []
+        rejected = validation.get("rejected_spans") or []
+        
+        st.markdown(f"""
+        <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+            <div style='color: #51cf66; font-size: 28px; font-weight: 700;'>{len(support)}</div>
+            <div style='color: #718096; font-size: 12px;'>Supporting</div>
+        </div>
+        <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+            <div style='color: #ffd43b; font-size: 28px; font-weight: 700;'>{len(contra)}</div>
+            <div style='color: #718096; font-size: 12px;'>Contradictory</div>
+        </div>
+        <div style='background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+            <div style='color: #ff6b6b; font-size: 28px; font-weight: 700;'>{len(rejected)}</div>
+            <div style='color: #718096; font-size: 12px;'>Rejected</div>
+        </div>
+        <div style='background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+            <div style='color: #26c6da; font-size: 28px; font-weight: 700;'>{validation.get('existence_pass_rate', 0):.0%}</div>
+            <div style='color: #718096; font-size: 12px;'>Pass Rate</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Evidence Table
+    st.markdown("#### 📋 Evidence Identification")
     ev = result_dict.get("evidence_spans") or []
     if ev:
         st.dataframe(
             [
                 {
-                    "text": e["text"],
-                    "positions": f"[{e['start']}:{e['end']}]",
-                    "cue_type": e["cue_type"],
-                    "role_hint": e["role_hint"],
-                    "source": e["source"],
+                    "📄 Text": e["text"],
+                    "📍 Position": f"[{e['start']}:{e['end']}]",
+                    "🏷️ Type": e["cue_type"],
+                    "🎯 Role": e["role_hint"],
+                    "🔗 Source": e["source"],
                 }
                 for e in ev
             ],
@@ -243,50 +333,77 @@ def render_analysis(result_dict: dict) -> None:
         )
     else:
         st.info("No lexical evidence cues identified.")
-
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.markdown("**Supporting evidence (validated)**")
-        support = validation.get("valid_supporting") or []
+    
+    # Validation Status
+    st.markdown("### ✅ Validation Status")
+    col_v1, col_v2 = st.columns(2)
+    
+    with col_v1:
+        st.markdown("#### ✨ Supporting Evidence")
         if support:
             for r in support:
-                st.write(f"- \"{r['span']['text']}\" @ [{r['actual_start']}:{r['actual_end']}]")
+                st.markdown(f"""
+                <div style='background: #d4edda; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #28a745;'>
+                    <strong>"{r['span']['text']}"</strong><br>
+                    <small style='color: #155724;'>Position: [{r['actual_start']}:{r['actual_end']}]</small>
+                </div>
+                """, unsafe_allow_html=True)
         else:
-            st.write("_None_")
-    with col_b:
-        st.markdown("**Contradictory evidence (validated)**")
-        contra = validation.get("valid_contradictory") or []
+            st.markdown("<em style='color: #adb5bd;'>None</em>", unsafe_allow_html=True)
+    
+    with col_v2:
+        st.markdown("#### ⚠️ Contradictory Evidence")
         if contra:
             for r in contra:
-                st.write(f"- \"{r['span']['text']}\" @ [{r['actual_start']}:{r['actual_end']}]")
+                st.markdown(f"""
+                <div style='background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #ffc107;'>
+                    <strong>"{r['span']['text']}"</strong><br>
+                    <small style='color: #856404;'>Position: [{r['actual_start']}:{r['actual_end']}]</small>
+                </div>
+                """, unsafe_allow_html=True)
         else:
-            st.write("_None_")
-
-    st.subheader("Evidence Validation Status")
-    st.write(
-        f"Existence pass rate: **{validation.get('existence_pass_rate', 0):.0%}** · "
-        f"All evidence valid: **{validation.get('all_evidence_valid')}**"
-    )
-    rejected = validation.get("rejected_spans") or []
+            st.markdown("<em style='color: #adb5bd;'>None</em>", unsafe_allow_html=True)
+    
+    # Rejected Evidence
     if rejected:
-        st.markdown("**Rejected evidence**")
+        st.markdown("#### ❌ Rejected Evidence")
         for r in rejected:
-            st.error(f"\"{r['span']['text']}\" — {r.get('rejection_reason')}")
-
+            st.markdown(f"""
+            <div style='background: #f8d7da; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #dc3545;'>
+                <strong>"{r['span']['text']}"</strong><br>
+                <small style='color: #721c24;'>Reason: {r.get('rejection_reason')}</small>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Unsupported Claims
     unsupported = validation.get("unsupported_claims") or explanation.get("unsupported_claims") or []
-    st.subheader("Unsupported Evidence Warnings")
+    st.markdown("### 🚨 Unsupported Claims")
     if unsupported:
         for c in unsupported:
-            st.warning(f"Unsupported claim: \"{c}\"")
+            st.markdown(f"""
+            <div style='background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #ffc107;'>
+                <strong>⚠️ Unsupported:</strong> "{c}"
+            </div>
+            """, unsafe_allow_html=True)
     else:
-        st.write("No unsupported claims detected in the draft explanation.")
-
-    st.subheader("Final Explanation")
+        st.markdown("""
+        <div style='background: #d4edda; padding: 12px; border-radius: 8px; border-left: 4px solid #28a745;'>
+            <strong>✅</strong> No unsupported claims detected
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Final Explanation
+    st.markdown("### 💬 Final Explanation")
     gen = explanation.get("generation_backend", "local_template")
-    st.caption(f"Explanation generation backend: `{gen}`")
-    st.write(explanation.get("final_explanation") or "—")
-
-    with st.expander("Intermediate processing (examiner view)"):
+    st.markdown(f"<small style='color: #718096;'>Backend: <code>{gen}</code></small>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; line-height: 1.6;'>
+        {explanation.get("final_explanation") or "—"}
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Expandable Details
+    with st.expander("🔧 Intermediate Processing Details"):
         st.json(
             {
                 "intermediate": intermediate,
