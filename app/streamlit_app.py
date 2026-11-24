@@ -27,7 +27,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom colorful theme
+# Custom colorful theme with improved text visibility
 st.markdown("""
 <style>
    .stApp {
@@ -41,19 +41,22 @@ st.markdown("""
         box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     }
     h1 {
-        color: #4a5568;
+        color: #1a202c;
         font-weight: 800;
         background: linear-gradient(90deg, #26c6da, #ab47bc);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     h2, h3 {
-        color: #2d3748;
+        color: #1a202c;
         font-weight: 700;
+    }
+    p, span, div, label {
+        color: #2d3748 !important;
     }
     .stButton>button {
         background: linear-gradient(90deg, #26c6da, #ab47bc);
-        color: white;
+        color: white !important;
         border: none;
         border-radius: 10px;
         padding: 12px 24px;
@@ -67,6 +70,7 @@ st.markdown("""
     .stTextInput>div>div>input, .stTextArea>div>textarea {
         border-radius: 10px;
         border: 2px solid #e2e8f0;
+        color: #1a202c !important;
         transition: all 0.3s;
     }
     .stTextInput>div>div>input:focus, .stTextArea>div>textarea:focus {
@@ -80,15 +84,24 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
     div[data-testid="stMetricValue"] {
-        color: #26c6da;
+        color: #1a202c !important;
         font-weight: 700;
     }
     .sidebar .sidebar-content {
         background: linear-gradient(180deg, #26c6da 0%, #ab47bc 100%);
     }
-    .sidebar .sidebar-content h1 {
+    .sidebar .sidebar-content h1, .sidebar .sidebar-content h2, .sidebar .sidebar-content h3 {
         color: white !important;
         -webkit-text-fill-color: white !important;
+    }
+    .sidebar .sidebar-content p, .sidebar .sidebar-content span, .sidebar .sidebar-content label {
+        color: rgba(255,255,255,0.95) !important;
+    }
+    .stSelectbox>div>div>select {
+        color: #1a202c !important;
+    }
+    .stRadio>div>label {
+        color: #1a202c !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -102,6 +115,59 @@ def get_framework() -> EvidenceAwareFramework:
         llm_client=LLMClient(),
         use_llm=True,
     )
+
+
+def login_page():
+    """Display login page with authentication."""
+    st.markdown("""
+    <style>
+    .login-container {
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .login-title {
+        color: #1a202c;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    .login-subtitle {
+        color: #718096;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class='login-container'>
+        <h1 class='login-title'>🔐 Login</h1>
+        <p class='login-subtitle'>Evidence-Aware LLM Framework</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        username = st.text_input("👤 Username", placeholder="Enter your username")
+        password = st.text_input("🔑 Password", type="password", placeholder="Enter your password")
+        
+        if st.button("🚀 Login", use_container_width=True, type="primary"):
+            # Simple authentication (in production, use proper auth)
+            if username == "admin" and password == "admin123":
+                st.session_state["authenticated"] = True
+                st.session_state["username"] = username
+                st.success("✅ Login successful!")
+                st.rerun()
+            else:
+                st.error("❌ Invalid credentials. Try admin/admin123")
+        
+        st.markdown("---")
+        st.caption("💡 Demo credentials: username: **admin**, password: **admin123**")
 
 
 def load_demo_samples() -> dict:
@@ -553,7 +619,25 @@ def page_lab(fw: EvidenceAwareFramework) -> None:
 
 
 def main() -> None:
+    # Check authentication
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
+    
+    if not st.session_state["authenticated"]:
+        login_page()
+        return
+    
+    # Show logout button in sidebar
     st.sidebar.markdown("# 🧭 Navigation")
+    
+    if st.sidebar.button("🚪 Logout"):
+        st.session_state["authenticated"] = False
+        st.session_state["username"] = None
+        st.rerun()
+    
+    st.sidebar.markdown(f"👤 Logged in as: **{st.session_state.get('username', 'User')}**")
+    st.sidebar.markdown("---")
+    
     page = st.sidebar.radio(
         "📍 Section",
         ["🏠 Main Analysis", "🧪 Evidence Validation Laboratory"],
