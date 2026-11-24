@@ -12,6 +12,7 @@ from typing import Any, Dict, Optional
 import json
 import os
 import re
+import time
 
 try:
     from dotenv import load_dotenv
@@ -56,6 +57,7 @@ class LLMClient:
         model: Optional[str] = None,
         mode: Optional[str] = None,
         timeout: float = 30.0,
+        max_retries: int = 3,
     ) -> None:
         self.api_key = api_key if api_key is not None else os.getenv("OPENAI_API_KEY", "")
         self.base_url = (
@@ -65,6 +67,7 @@ class LLMClient:
         self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         self.mode = (mode or os.getenv("LLM_MODE", "auto")).lower()
         self.timeout = timeout
+        self.max_retries = max_retries
 
     @property
     def is_configured(self) -> bool:
@@ -109,29 +112,95 @@ class LLMClient:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        resp = requests.post(
-            f"{self.base_url}/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=self.timeout,
+
+        # Retry logic with exponential backoff for rate limits
+        last_error = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                resp = requests.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=headers,
+                    json=payload,
+                    timeout=self.timeout,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                content = data["choices"][0]["message"]["content"]
+                parsed = self._parse_json(content)
+                label = parsed.get("label", "uncertain")
+                if label not in ("phishing", "legitimate", "uncertain"):
+                    label = "uncertain"
+                return LLMResponse(
+                    success=True,
+                    used_llm=True,
+                    label=label,
+                    confidence=parsed.get("confidence"),
+                    reasoning=str(parsed.get("reasoning", "")),
+                    explanation=str(parsed.get("explanation", "")),
+                    probabilities=parsed.get("probabilities") or {},
+                    raw=content,
+                )
+            except requests.exceptions.HTTPError as e:
+                last_error = e
+                error_data = self._extract_error_data(e.response)
+                error_type = error_data.get("type", "")
+                error_message = error_data.get("message", str(e))
+
+                # Check if this is a quota/billing error (not retryable)
+                if error_type == "insufficient_quota" or "quota" in error_message.lower() or "billing" in error_message.lower():
+                    return self._local_fallback(
+                        text,
+                        error=f"OpenAI quota/billing error: {error_message}. Please check your OpenAI account billing.",
+                    )
+
+                # Check if this is a rate limit error (retryable)
+                if e.response.status_code == 429:
+                    if attempt < self.max_retries:
+                        # Exponential backoff: 1s, 2s, 4s
+                        backoff = 2 ** attempt
+                        time.sleep(backoff)
+                        continue
+                    else:
+                        return self._local_fallback(
+                            text,
+                            error=f"Rate limit exceeded after {self.max_retries} retries: {error_message}",
+                        )
+
+                # Other HTTP errors - don't retry
+                return self._local_fallback(
+                    text,
+                    error=f"HTTP error {e.response.status_code}: {error_message}",
+                )
+            except requests.exceptions.RequestException as e:
+                last_error = e
+                # Network errors - retry once
+                if attempt < 1:
+                    time.sleep(1)
+                    continue
+                return self._local_fallback(
+                    text,
+                    error=f"Network error: {str(e)}",
+                )
+
+        # Should not reach here, but fallback just in case
+        return self._local_fallback(
+            text,
+            error=f"API call failed after retries: {str(last_error)}",
         )
-        resp.raise_for_status()
-        data = resp.json()
-        content = data["choices"][0]["message"]["content"]
-        parsed = self._parse_json(content)
-        label = parsed.get("label", "uncertain")
-        if label not in ("phishing", "legitimate", "uncertain"):
-            label = "uncertain"
-        return LLMResponse(
-            success=True,
-            used_llm=True,
-            label=label,
-            confidence=parsed.get("confidence"),
-            reasoning=str(parsed.get("reasoning", "")),
-            explanation=str(parsed.get("explanation", "")),
-            probabilities=parsed.get("probabilities") or {},
-            raw=content,
-        )
+
+    def _extract_error_data(self, response) -> Dict[str, str]:
+        """Extract error type and message from OpenAI error response."""
+        try:
+            data = response.json()
+            if "error" in data:
+                error = data["error"]
+                return {
+                    "type": error.get("type", ""),
+                    "message": error.get("message", str(data)),
+                }
+            return {"type": "", "message": str(data)}
+        except (json.JSONDecodeError, ValueError):
+            return {"type": "", "message": response.text}
 
     def _parse_json(self, content: str) -> Dict[str, Any]:
         content = content.strip()

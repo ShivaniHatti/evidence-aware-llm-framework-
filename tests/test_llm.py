@@ -1,4 +1,5 @@
 from src.llm.client import LLMClient
+import requests
 
 
 def test_local_fallback_when_no_key():
@@ -88,3 +89,84 @@ def test_llm_mode_api_without_key():
     assert resp.used_llm is False
     assert resp.error is not None
     assert "API_KEY" in resp.error or "key" in resp.error.lower()
+
+
+def test_rate_limit_with_retry(monkeypatch):
+    """Test that 429 rate limit errors trigger retry with backoff."""
+    client = LLMClient(api_key="sk-test-valid", mode="api", model="gpt-4o-mini", max_retries=2)
+    call_count = [0]
+
+    def mock_api_call(text):
+        call_count[0] += 1
+        if call_count[0] < 3:
+            # Simulate rate limit on first 2 calls
+            response = type('obj', (object,), {
+                'status_code': 429,
+                'json': lambda: {"error": {"type": "rate_limit_error", "message": "Rate limit exceeded"}},
+                'text': "Rate limit exceeded"
+            })()
+            raise requests.exceptions.HTTPError(response=response)
+        # Success on 3rd call
+        from src.llm.client import LLMResponse
+        return LLMResponse(
+            success=True,
+            used_llm=True,
+            label="phishing",
+            confidence=0.88,
+            reasoning="Phishing detected",
+            explanation="Suspicious content",
+            probabilities={"phishing": 0.88, "legitimate": 0.10, "uncertain": 0.02},
+        )
+
+    monkeypatch.setattr(client, "_call_api", mock_api_call)
+    resp = client.classify_and_explain("Test message")
+    
+    assert call_count[0] == 3  # Should have retried
+    assert resp.used_llm is True
+    assert resp.label == "phishing"
+
+
+def test_quota_error_no_retry(monkeypatch):
+    """Test that quota/billing errors do not trigger retry."""
+    client = LLMClient(api_key="sk-test-valid", mode="api", model="gpt-4o-mini", max_retries=3)
+    call_count = [0]
+
+    def mock_api_call(text):
+        call_count[0] += 1
+        response = type('obj', (object,), {
+            'status_code': 429,
+            'json': lambda: {"error": {"type": "insufficient_quota", "message": "Quota exceeded"}},
+            'text': "Quota exceeded"
+        })()
+        raise requests.exceptions.HTTPError(response=response)
+
+    monkeypatch.setattr(client, "_call_api", mock_api_call)
+    resp = client.classify_and_explain("Test message")
+    
+    assert call_count[0] == 1  # Should NOT have retried
+    assert resp.used_llm is False
+    assert resp.error is not None
+    assert "quota" in resp.error.lower() or "billing" in resp.error.lower()
+
+
+def test_rate_limit_exhausted_retries(monkeypatch):
+    """Test that after max retries, fallback occurs."""
+    client = LLMClient(api_key="sk-test-valid", mode="api", model="gpt-4o-mini", max_retries=1)
+    call_count = [0]
+
+    def mock_api_call(text):
+        call_count[0] += 1
+        response = type('obj', (object,), {
+            'status_code': 429,
+            'json': lambda: {"error": {"type": "rate_limit_error", "message": "Rate limit exceeded"}},
+            'text': "Rate limit exceeded"
+        })()
+        raise requests.exceptions.HTTPError(response=response)
+
+    monkeypatch.setattr(client, "_call_api", mock_api_call)
+    resp = client.classify_and_explain("Test message")
+    
+    assert call_count[0] == 2  # Initial + 1 retry
+    assert resp.used_llm is False
+    assert resp.error is not None
+    assert "rate limit" in resp.error.lower()
